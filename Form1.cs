@@ -115,7 +115,6 @@ namespace loki97
                 }
             }
             encodedText.Text = Encoding.UTF8.GetString(encodedBytesList.ToArray());
-            
         }
 
         private void ResolveKeys()
@@ -253,6 +252,105 @@ namespace loki97
             }
 
             return sb.ToString();
+        }
+
+        private void decode_Click(object sender, EventArgs e)
+        {
+            int keylength = key.Text.Length;
+            if (keylength > 32 || keylength < 9)
+            {
+                string message = "Неправильная длинна ключа!";
+                string caption = "Ключ должен содержать от 16 до 32 знаков в шестнадцатиричной системе счисления!";
+                _ = MessageBox.Show(caption, message, MessageBoxButtons.OK);
+                return;
+            }
+            K1[0] = Convert.ToUInt64(key.Text.Substring(0, 8), 16);
+            K2[0] = Convert.ToUInt64(key.Text.Substring(8, keylength - 8 >= 8 ? 8 : keylength - 8), 16);
+            if (keylength < 17 && keylength > 8)
+            {
+                K3[0] = f_function(K1[0], K2[0]);
+                K4[0] = f_function(K2[0], K1[0]);
+            }
+            else if (keylength < 25 || keylength > 16)
+            {
+                K3[0] = Convert.ToUInt64(key.Text.Substring(16, keylength - 16 >= 8 ? 8 : keylength - 16), 16);
+                K4[0] = f_function(K2[0], K1[0]);
+            }
+            else
+            {
+                K3[0] = Convert.ToUInt64(key.Text.Substring(16, keylength - 16 >= 8 ? 8 : keylength - 16), 16);
+                K4[0] = Convert.ToUInt64(key.Text.Substring(24, keylength - 24 >= 8 ? 8 : keylength - 24), 16);
+            }
+            ResolveKeys();
+
+            decodedBytes.Text = "";
+            encodedBytes.Text = "";
+            decodedText.Text = "";
+
+            var EncodedText = encodedText.Text;
+            var encodedB = Encoding.UTF8.GetBytes(EncodedText);
+            foreach (var b in encodedB)
+            {
+                encodedBytes.Text += " " + Convert.ToString(b, 2);
+            }
+            var encodedblocks = new List<ulong>();
+            var decodedblocks = new List<ulong>();
+            for (int i = 0; i < (int)Math.Ceiling(encodedB.Length / 16d); i++)
+            {
+                string blockL = "";
+                string blockR = "";
+                int counter = 0;
+                for (int j = i * 16; j < (i + 1) * 16; j++)
+                {
+                    byte currentbyte = (j < encodedB.Length) ? encodedB[j] : (byte)32;
+                    string current = Convert.ToString(currentbyte, 2);
+                    if (counter < 8)
+                    {
+                        for (int k = 0; k < 8 - current.Length; k++)
+                        {
+                            blockL += "0";
+                        }
+                        blockL += current;
+                    }
+                    else
+                    {
+                        for (int k = 0; k < 8 - current.Length; k++)
+                        {
+                            blockR += "0";
+                        }
+                        blockR += current;
+                    }
+                    counter++;
+                }
+                encodedblocks.Add(Convert.ToUInt64(blockL, 2));
+                encodedblocks.Add(Convert.ToUInt64(blockR, 2));
+            }
+            for (int g = 0; g < (int)Math.Truncate(encodedblocks.Count / 2d); g += 2)
+            {
+                L[16] = encodedblocks[g];
+                R[16] = encodedblocks[g + 1];
+                for (int i = 16; i >= 1; i--)
+                {
+                    R[i-1] = L[i] ^ f_function(R[i] + SK[3 * i], SK[3 * i - 1]);
+                    L[i-1] = R[i] + SK[3 * i] + SK[3 * i - 2];
+                }
+                decodedblocks.Add(L[0]);
+                decodedblocks.Add(R[0]);
+            }
+            var decodedBytesList = new List<byte>();
+            foreach (var block in decodedblocks)
+            {
+                var block_string = Convert.ToString((long)block, 2);
+                block_string = block_string.Insert(block_string.Length, Multiply("0", 64 - block_string.Length));
+                for (int d = 0; d < 8; d++)
+                {
+                    var byte_string = block_string.Substring(d * 8, 8);
+                    var byte_value = Convert.ToByte(byte_string, 2);
+                    decodedBytes.Text += byte_string + " ";
+                    decodedBytesList.Add(byte_value);
+                }
+            }
+            decodedText.Text = Encoding.UTF8.GetString(decodedBytesList.ToArray());
         }
     }
 }

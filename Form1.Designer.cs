@@ -60,6 +60,7 @@
             this.decode.TabIndex = 1;
             this.decode.Text = "Расшифровать";
             this.decode.UseVisualStyleBackColor = true;
+            this.decode.Click += new System.EventHandler(this.decode_Click);
             // 
             // decodedText
             // 
