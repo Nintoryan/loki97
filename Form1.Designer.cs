@@ -51,6 +51,7 @@
             this.encode.Text = "Зашифровать";
             this.encode.UseVisualStyleBackColor = true;
             this.encode.Click += new System.EventHandler(this.encode_Click);
+            this.encode.Click += new System.EventHandler(this.R8);
             // 
             // decode
             // 
@@ -61,6 +62,7 @@
             this.decode.Text = "Расшифровать";
             this.decode.UseVisualStyleBackColor = true;
             this.decode.Click += new System.EventHandler(this.decode_Click);
+            this.decode.Click += new System.EventHandler(this.GradleMinify);
             // 
             // decodedText
             // 

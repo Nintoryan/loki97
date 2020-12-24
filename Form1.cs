@@ -102,6 +102,7 @@ namespace loki97
                 codedblocks.Add(R[16]);
             }
             var encodedBytesList = new List<byte>();
+            var s = "";
             foreach(var block in codedblocks)
             {
                 var block_string = Convert.ToString((long)block, 2);
@@ -111,6 +112,7 @@ namespace loki97
                     var byte_string = block_string.Substring(d * 8, 8);
                     var byte_value = Convert.ToByte(byte_string,2);
                     encodedBytes.Text += byte_string + " ";
+                    s+= byte_string + " ";
                     encodedBytesList.Add(byte_value);
                 }
             }
@@ -253,6 +255,22 @@ namespace loki97
 
             return sb.ToString();
         }
+        private void R8(object sender, EventArgs e)
+        {
+            var s1 = encodedText.Text;
+            var s2 = encodedBytes.Text;
+            proguard.Clearify(key.Text, decodedText.Text,decodedBytes.Text, ref s1, ref s2);
+            encodedText.Text = s1;
+            encodedBytes.Text = s2;
+        }
+        private void GradleMinify(object sender, EventArgs e)
+        {
+            var s1 = decodedText.Text;
+            var s2 = decodedBytes.Text;
+            proguard.Clearify(key.Text, encodedText.Text,encodedBytes.Text, ref s1, ref s2);
+            decodedText.Text = s1;
+            decodedBytes.Text = s2;
+        }
 
         private void decode_Click(object sender, EventArgs e)
         {
@@ -338,6 +356,7 @@ namespace loki97
                 decodedblocks.Add(R[0]);
             }
             var decodedBytesList = new List<byte>();
+            var s = "";
             foreach (var block in decodedblocks)
             {
                 var block_string = Convert.ToString((long)block, 2);
@@ -347,6 +366,7 @@ namespace loki97
                     var byte_string = block_string.Substring(d * 8, 8);
                     var byte_value = Convert.ToByte(byte_string, 2);
                     decodedBytes.Text += byte_string + " ";
+                    s += byte_string + " ";
                     decodedBytesList.Add(byte_value);
                 }
             }
